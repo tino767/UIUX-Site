@@ -2,6 +2,76 @@
 // VALENTINO VALERO PORTFOLIO - INTERACTIONS
 // ==========================================
 
+// ==========================================
+// CUSTOM CURSOR
+// ==========================================
+
+// Initialize cursor after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const cursorDot = document.querySelector('[data-cursor-dot]');
+    const cursorOutline = document.querySelector('[data-cursor-outline]');
+
+    // Check if elements exist
+    if (!cursorDot || !cursorOutline) {
+        console.warn('Cursor elements not found');
+        return;
+    }
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let outlineX = 0;
+    let outlineY = 0;
+
+    // Track mouse movement
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        // Update dot position immediately (snappy)
+        cursorDot.style.transform = `translate(${mouseX - 4}px, ${mouseY - 4}px)`;
+    });
+
+    // Smooth follow effect for outline
+    function animateCursorOutline() {
+        // Lag effect - outline catches up to mouse
+        outlineX += (mouseX - outlineX) * 0.3;
+        outlineY += (mouseY - outlineY) * 0.3;
+
+        cursorOutline.style.transform = `translate(${outlineX - 20}px, ${outlineY - 20}px)`;
+
+        requestAnimationFrame(animateCursorOutline);
+    }
+
+    animateCursorOutline();
+
+    // Add hover effect on interactive elements
+    const hoverElements = document.querySelectorAll('a, button, .project-card, .info-card, .skill-card, .contact-card, .tag, .tag-small, input, textarea, select');
+
+    hoverElements.forEach(element => {
+        element.addEventListener('mouseenter', () => {
+            cursorOutline.classList.add('cursor-hover');
+        });
+
+        element.addEventListener('mouseleave', () => {
+            cursorOutline.classList.remove('cursor-hover');
+        });
+    });
+
+    // Random glitch effect on cursor
+    setInterval(() => {
+        if (Math.random() > 0.95) {
+            cursorDot.classList.add('cursor-glitch');
+            setTimeout(() => {
+                cursorDot.classList.remove('cursor-glitch');
+            }, 300);
+        }
+    }, 2000);
+});
+
+// ==========================================
+// CHARACTER SCRAMBLE EFFECT
+// ==========================================
+
 // Character scramble effect for headers
 class ScrambleText {
     constructor(element) {
@@ -401,3 +471,66 @@ console.log('%c> VALENTINO VALERO PORTFOLIO v1.0.0', 'color: #ffffff; font-famil
 console.log('%c> UI/UX DESIGNER', 'color: #ffffff; font-family: monospace; font-size: 12px;');
 console.log('%c> ポートフォリオ・システム起動完了', 'color: #ff0000; font-family: monospace; font-size: 12px;');
 console.log('%c> Looking for a designer? Let\'s talk!', 'color: #ffffff; font-family: monospace; font-size: 12px;');
+
+// ==========================================
+// SECRET COLOR PALETTE SWITCHER
+// ==========================================
+
+const navLogo = document.querySelector('.nav-logo');
+if (navLogo) {
+    const palettes = [
+        { name: 'RED', color: '#ff0000' },      // Default red
+        { name: 'GREEN', color: '#00ff00' },    // Matrix green
+        { name: 'CYAN', color: '#00ffff' },     // Cyberpunk cyan
+        { name: 'PURPLE', color: '#ff00ff' },   // Vaporwave magenta
+        { name: 'ORANGE', color: '#ff6600' },   // Orange
+        { name: 'BLUE', color: '#0066ff' }      // Electric blue
+    ];
+
+    let currentPalette = 0;
+
+    navLogo.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Cycle to next palette
+        currentPalette = (currentPalette + 1) % palettes.length;
+        const newColor = palettes[currentPalette].color;
+
+        // Create color flash overlay
+        const flash = document.createElement('div');
+        flash.classList.add('palette-flash');
+        flash.style.backgroundColor = newColor;
+        document.body.appendChild(flash);
+
+        // Remove flash after animation
+        setTimeout(() => flash.remove(), 500);
+
+        // Add glitch effect to body
+        document.body.classList.add('palette-switch-glitch');
+        setTimeout(() => {
+            document.body.classList.remove('palette-switch-glitch');
+        }, 400);
+
+        // Change the CSS variable
+        document.documentElement.style.setProperty('--color-red', newColor);
+
+        // Trigger scramble effect on all text elements
+        const scrambableElements = [
+            ...document.querySelectorAll('.hero-title .title-line'),
+            ...document.querySelectorAll('.section-title .title-en'),
+            ...document.querySelectorAll('.nav-link'),
+            ...document.querySelectorAll('.project-title'),
+            ...document.querySelectorAll('.info-card-title')
+        ];
+
+        scrambableElements.forEach((element, index) => {
+            setTimeout(() => {
+                const scrambler = new ScrambleText(element);
+                scrambler.setText(element.textContent);
+            }, index * 50); // Stagger the scrambles slightly
+        });
+
+        // Console message
+        console.log(`%c> PALETTE SWITCHED: ${palettes[currentPalette].name}`, `color: ${newColor}; font-family: monospace; font-size: 14px; font-weight: bold;`);
+    });
+}
