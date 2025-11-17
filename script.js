@@ -72,6 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // CHARACTER SCRAMBLE EFFECT
 // ==========================================
 
+// Track active scramblers to prevent conflicts
+const activeScrambles = new WeakMap();
+
 // Character scramble effect for headers
 class ScrambleText {
     constructor(element) {
@@ -80,7 +83,6 @@ class ScrambleText {
         this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*(){}[]<>?/|あいうえおかきくけこ';
         this.frameRequest = null;
         this.frame = 0;
-        this.resolve = 0;
         this.queue = [];
     }
 
@@ -126,7 +128,11 @@ class ScrambleText {
         this.element.textContent = output;
 
         if (complete === this.queue.length) {
-            this.resolve();
+            // Animation complete - ensure final text is set correctly
+            this.element.textContent = this.queue.map(q => q.to).join('');
+            cancelAnimationFrame(this.frameRequest);
+            // Remove from active scrambles
+            activeScrambles.delete(this.element);
         } else {
             this.frameRequest = requestAnimationFrame(() => this.update());
             this.frame++;
@@ -136,21 +142,66 @@ class ScrambleText {
     randomChar() {
         return this.chars[Math.floor(Math.random() * this.chars.length)];
     }
+
+    cancel() {
+        cancelAnimationFrame(this.frameRequest);
+        // Restore original text
+        this.element.textContent = this.queue.map(q => q.to).join('');
+        activeScrambles.delete(this.element);
+    }
 }
 
-// Boot Screen
+// Helper function to safely start a scramble
+function startScramble(element, text = null) {
+    // If there's already an active scramble, cancel it first
+    const existingScramble = activeScrambles.get(element);
+    if (existingScramble) {
+        existingScramble.cancel();
+    }
+
+    // Create new scramble and track it
+    const scrambler = new ScrambleText(element);
+    activeScrambles.set(element, scrambler);
+    scrambler.setText(text || element.textContent);
+}
+
+// Boot Screen and Build Animation
 document.addEventListener('DOMContentLoaded', () => {
     const bootScreen = document.getElementById('bootScreen');
+
+    // Add build-init classes only to above-the-fold elements
+    const nav = document.querySelector('.terminal-nav');
+    const hero = document.querySelector('.hero');
+
+    nav?.classList.add('build-init');
+    hero?.classList.add('build-init');
 
     // Hide boot screen on Enter key or click
     const hideBootScreen = () => {
         bootScreen.classList.add('hidden');
         setTimeout(() => {
             bootScreen.style.display = 'none';
+            // Start build animations
+            startBuildSequence();
             // Start scramble effects after boot screen hides
             initScrambleEffects();
         }, 500);
     };
+
+    // Build animation sequence (only for above-the-fold content)
+    function startBuildSequence() {
+        // Animate nav immediately
+        setTimeout(() => {
+            nav?.classList.add('build-active');
+        }, 100);
+
+        // Animate hero
+        setTimeout(() => {
+            hero?.classList.add('build-active');
+            // Make sure hero is visible so child animations work
+            if (hero) hero.style.opacity = '1';
+        }, 300);
+    }
 
     // Listen for Enter key
     document.addEventListener('keydown', (e) => {
@@ -175,9 +226,8 @@ function initScrambleEffects() {
     // Initial scramble on hero title
     const heroTitleLines = document.querySelectorAll('.hero-title .title-line');
     heroTitleLines.forEach((line, index) => {
-        const scrambler = new ScrambleText(line);
         setTimeout(() => {
-            scrambler.setText(line.textContent);
+            startScramble(line);
         }, index * 200);
     });
 
@@ -192,8 +242,7 @@ function initScrambleEffects() {
     function randomScramble() {
         if (scrambableElements.length > 0 && Math.random() > 0.3) {
             const randomElement = scrambableElements[Math.floor(Math.random() * scrambableElements.length)];
-            const scrambler = new ScrambleText(randomElement);
-            scrambler.setText(randomElement.textContent);
+            startScramble(randomElement);
         }
     }
 
@@ -206,8 +255,7 @@ function initScrambleEffects() {
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('mouseenter', function() {
-            const scrambler = new ScrambleText(this);
-            scrambler.setText(this.textContent);
+            startScramble(this);
         });
     });
 }
@@ -341,12 +389,14 @@ terminalContents.forEach(content => {
 // Random scan line effect
 function createScanLine() {
     const scanLine = document.createElement('div');
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--color-red').trim();
     scanLine.style.position = 'fixed';
     scanLine.style.top = '0';
     scanLine.style.left = '0';
     scanLine.style.width = '100%';
     scanLine.style.height = '2px';
-    scanLine.style.background = 'rgba(255, 0, 0, 0.5)';
+    scanLine.style.background = accentColor;
+    scanLine.style.opacity = '0.5';
     scanLine.style.zIndex = '9997';
     scanLine.style.pointerEvents = 'none';
     document.body.appendChild(scanLine);
@@ -382,7 +432,11 @@ canvas.style.width = '100%';
 canvas.style.height = '100%';
 canvas.style.pointerEvents = 'none';
 canvas.style.zIndex = '0';
-canvas.style.opacity = '0.15';
+canvas.style.opacity = '0.25';
+// Force canvas into its own GPU layer to prevent distortion from parent transforms
+canvas.style.transform = 'translateZ(0)';
+canvas.style.willChange = 'opacity';
+canvas.style.backfaceVisibility = 'hidden';
 document.body.prepend(canvas);
 
 const ctx = canvas.getContext('2d');
@@ -408,6 +462,21 @@ updateGlitchColumns();
 setInterval(updateGlitchColumns, 2000); // Update glitch columns every 2 seconds
 
 function drawMatrix() {
+    // Get current accent color from CSS variable
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--color-red').trim();
+
+    // Convert hex to RGB
+    const hexToRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : { r: 255, g: 0, b: 0 };
+    };
+
+    const rgb = hexToRgb(accentColor);
+
     ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -416,14 +485,14 @@ function drawMatrix() {
 
         // Glitch effect - some columns flicker colors
         if (glitchColumns.has(i)) {
-            // Glitchy columns - random color between red and white
+            // Glitchy columns - random color between accent and white
             const glitchRandom = Math.random();
             if (glitchRandom > 0.7) {
                 ctx.fillStyle = '#ffffff';
             } else if (glitchRandom > 0.4) {
-                ctx.fillStyle = '#ff0000';
+                ctx.fillStyle = accentColor;
             } else {
-                ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`;
             }
 
             // Occasionally skip or double characters for glitch effect
@@ -433,9 +502,9 @@ function drawMatrix() {
                 ctx.font = fontSize + 'px monospace';
             }
         } else {
-            // Normal columns - red with varying opacity
+            // Normal columns - accent color with varying opacity
             const opacity = Math.random() * 0.5 + 0.5;
-            ctx.fillStyle = `rgba(255, 0, 0, ${opacity})`;
+            ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
             ctx.font = fontSize + 'px monospace';
         }
 
@@ -496,23 +565,41 @@ if (navLogo) {
         currentPalette = (currentPalette + 1) % palettes.length;
         const newColor = palettes[currentPalette].color;
 
-        // Create color flash overlay
-        const flash = document.createElement('div');
-        flash.classList.add('palette-flash');
-        flash.style.backgroundColor = newColor;
-        document.body.appendChild(flash);
+        // Surge matrix opacity during glitch
+        const originalOpacity = canvas.style.opacity;
+        canvas.style.opacity = '0.6';
 
-        // Remove flash after animation
-        setTimeout(() => flash.remove(), 500);
-
-        // Add glitch effect to body
-        document.body.classList.add('palette-switch-glitch');
         setTimeout(() => {
-            document.body.classList.remove('palette-switch-glitch');
+            canvas.style.transition = 'opacity 0.5s ease-out';
+            canvas.style.opacity = originalOpacity;
+            setTimeout(() => {
+                canvas.style.transition = '';
+            }, 500);
+        }, 100);
+
+        // Add glitch effect to all content elements (not body, to avoid affecting canvas)
+        const glitchTargets = document.querySelectorAll('.terminal-nav, .hero, section, footer');
+        glitchTargets.forEach(el => el.classList.add('palette-switch-glitch'));
+        setTimeout(() => {
+            glitchTargets.forEach(el => el.classList.remove('palette-switch-glitch'));
         }, 400);
 
         // Change the CSS variable
         document.documentElement.style.setProperty('--color-red', newColor);
+
+        // Also update RGB variables for rgba() usage
+        const hexToRgb = (hex) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 255, g: 0, b: 0 };
+        };
+        const rgb = hexToRgb(newColor);
+        document.documentElement.style.setProperty('--accent-r', rgb.r);
+        document.documentElement.style.setProperty('--accent-g', rgb.g);
+        document.documentElement.style.setProperty('--accent-b', rgb.b);
 
         // Trigger scramble effect on all text elements
         const scrambableElements = [
@@ -525,8 +612,7 @@ if (navLogo) {
 
         scrambableElements.forEach((element, index) => {
             setTimeout(() => {
-                const scrambler = new ScrambleText(element);
-                scrambler.setText(element.textContent);
+                startScramble(element);
             }, index * 50); // Stagger the scrambles slightly
         });
 

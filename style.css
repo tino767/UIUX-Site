@@ -40,6 +40,11 @@
     --color-gray: #1a1a1a;
     --color-gray-light: #333333;
 
+    /* RGB values for accent color (for rgba usage) */
+    --accent-r: 255;
+    --accent-g: 0;
+    --accent-b: 0;
+
     --font-mono: 'Matrix Type', 'Courier New', monospace;
     --font-terminal: 'Matrix Type', 'Courier New', monospace;
 
@@ -187,9 +192,7 @@ body {
     background-color: rgba(0, 0, 0, 0.7);
     border-bottom: 2px solid var(--color-red);
     z-index: 1000;
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    box-shadow: 0 8px 32px 0 rgba(255, 0, 0, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1);
 }
 
 .nav-container {
@@ -345,18 +348,20 @@ body {
 .tag:hover {
     border-color: var(--color-red);
     color: var(--color-red);
-    background-color: rgba(255, 0, 0, 0.1);
+    background-color: rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1);
 }
 
 .hero-ascii {
     font-size: 0.9rem;
     color: var(--color-red);
     line-height: 1.4;
-    font-family: var(--font-terminal);
+    font-family: 'Courier New', 'Consolas', monospace;
 }
 
 .hero-ascii pre {
-    font-family: var(--font-terminal);
+    font-family: 'Courier New', 'Consolas', monospace;
+    margin: 0;
+    letter-spacing: 0;
 }
 
 .scroll-indicator {
@@ -442,9 +447,9 @@ section {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    background: rgba(26, 26, 26, 0.6);
-    backdrop-filter: blur(15px) saturate(150%);
-    -webkit-backdrop-filter: blur(15px) saturate(150%);
+    background: rgba(26, 26, 26, 0.15);
+    backdrop-filter: blur(6px) saturate(150%);
+    -webkit-backdrop-filter: blur(6px) saturate(150%);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
@@ -455,7 +460,7 @@ section {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1), transparent);
     transition: left 0.5s ease;
 }
 
@@ -466,8 +471,8 @@ section {
 .info-card:hover {
     border-color: var(--color-red);
     transform: translateY(-3px);
-    background: rgba(26, 26, 26, 0.8);
-    box-shadow: 0 12px 40px 0 rgba(255, 0, 0, 0.2);
+    background: rgba(26, 26, 26, 0.3);
+    box-shadow: 0 12px 40px 0 rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.2);
 }
 
 .info-card-large {
@@ -593,9 +598,9 @@ section {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    background: rgba(26, 26, 26, 0.6);
-    backdrop-filter: blur(15px) saturate(150%);
-    -webkit-backdrop-filter: blur(15px) saturate(150%);
+    background: rgba(26, 26, 26, 0.15);
+    backdrop-filter: blur(6px) saturate(150%);
+    -webkit-backdrop-filter: blur(6px) saturate(150%);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
@@ -606,7 +611,7 @@ section {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1), transparent);
     transition: left 0.5s ease;
 }
 
@@ -617,8 +622,8 @@ section {
 .skill-card:hover {
     border-color: var(--color-red);
     transform: translateY(-3px);
-    background: rgba(26, 26, 26, 0.8);
-    box-shadow: 0 12px 40px 0 rgba(255, 0, 0, 0.2);
+    background: rgba(26, 26, 26, 0.3);
+    box-shadow: 0 12px 40px 0 rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.2);
 }
 
 .skill-card-header {
@@ -694,9 +699,9 @@ section {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    background: rgba(26, 26, 26, 0.6);
-    backdrop-filter: blur(15px) saturate(150%);
-    -webkit-backdrop-filter: blur(15px) saturate(150%);
+    background: rgba(26, 26, 26, 0.15);
+    backdrop-filter: blur(6px) saturate(150%);
+    -webkit-backdrop-filter: blur(6px) saturate(150%);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
@@ -707,7 +712,7 @@ section {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1), transparent);
     transition: left 0.5s ease;
 }
 
@@ -718,8 +723,8 @@ section {
 .project-card:hover {
     border-color: var(--color-red);
     transform: translateY(-5px);
-    background: rgba(26, 26, 26, 0.8);
-    box-shadow: 0 12px 40px 0 rgba(255, 0, 0, 0.2);
+    background: rgba(26, 26, 26, 0.3);
+    box-shadow: 0 12px 40px 0 rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.2);
 }
 
 .project-header {
@@ -813,9 +818,9 @@ section {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    background: rgba(26, 26, 26, 0.6);
-    backdrop-filter: blur(15px) saturate(150%);
-    -webkit-backdrop-filter: blur(15px) saturate(150%);
+    background: rgba(26, 26, 26, 0.15);
+    backdrop-filter: blur(6px) saturate(150%);
+    -webkit-backdrop-filter: blur(6px) saturate(150%);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
@@ -826,7 +831,7 @@ section {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1), transparent);
     transition: left 0.5s ease;
 }
 
@@ -837,8 +842,8 @@ section {
 .contact-card:hover {
     border-color: var(--color-red);
     transform: translateY(-3px);
-    background: rgba(26, 26, 26, 0.8);
-    box-shadow: 0 12px 40px 0 rgba(255, 0, 0, 0.2);
+    background: rgba(26, 26, 26, 0.3);
+    box-shadow: 0 12px 40px 0 rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.2);
 }
 
 .contact-card-main {
@@ -1143,7 +1148,7 @@ a, button, input, textarea, select {
 .cursor-outline.cursor-hover {
     width: 60px;
     height: 60px;
-    background-color: rgba(255, 0, 0, 0.1);
+    background-color: rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1);
     opacity: 1;
 }
 
@@ -1215,27 +1220,111 @@ a, button, input, textarea, select {
     animation: screen-shake 0.4s ease-in-out;
 }
 
-.palette-switch-glitch * {
+.palette-switch-glitch *:not(canvas):not(canvas *) {
     animation: rgb-split 0.4s ease-in-out;
 }
 
-.palette-flash {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: 9999;
-    animation: flash-fade 0.5s ease-out forwards;
+/* Explicitly prevent canvas from being affected by glitch */
+.palette-switch-glitch canvas {
+    animation: none !important;
+    filter: none !important;
+    transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+    perspective: 1000px !important;
 }
 
-@keyframes flash-fade {
-    0% {
-        opacity: 0.6;
+
+/* ==========================================
+   BUILD ANIMATIONS
+   ========================================== */
+
+/* Initial hidden states */
+.terminal-nav.build-init {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.hero.build-init {
+    opacity: 0;
+}
+
+.hero.build-init .hero-title {
+    transform: translateY(30px);
+    opacity: 0;
+}
+
+.hero.build-init .hero-subtitle,
+.hero.build-init .hero-tags,
+.hero.build-init .hero-ascii {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.section.build-init {
+    opacity: 0;
+}
+
+.section.build-init .section-header {
+    transform: translateY(20px);
+    opacity: 0;
+}
+
+.info-card.build-init,
+.project-card.build-init,
+.contact-card.build-init {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+}
+
+/* Active/animated states */
+.terminal-nav.build-active {
+    animation: slide-down 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes slide-down {
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
-    100% {
-        opacity: 0;
+}
+
+.hero.build-active .hero-title {
+    animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+}
+
+.hero.build-active .hero-subtitle {
+    animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
+}
+
+.hero.build-active .hero-tags {
+    animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+}
+
+.hero.build-active .hero-ascii {
+    animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards;
+}
+
+@keyframes fade-up {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.section.build-active .section-header {
+    animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.info-card.build-active,
+.project-card.build-active,
+.contact-card.build-active {
+    animation: card-build 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes card-build {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
